@@ -2,13 +2,16 @@ package com.sky.service.impl;
 
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.entity.Employee;
 import com.sky.exception.AccountLockedException;
 import com.sky.exception.AccountNotFoundException;
 import com.sky.exception.PasswordErrorException;
+import com.sky.interceptor.JwtTokenAdminInterceptor;
 import com.sky.mapper.EmployeeMapper;
 import com.sky.service.EmployeeService;
+import com.sky.utils.Tomd5;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
@@ -18,6 +21,14 @@ public class EmployeeServiceImpl implements EmployeeService {
 
     @Autowired
     private EmployeeMapper employeeMapper;
+
+    //md5加密
+    @Autowired
+    private Tomd5 tomd5;
+
+    //从token中获取当前操作人员信息
+    @Autowired
+    JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
 
     /**
      * 员工登录
@@ -40,7 +51,8 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //密码比对
         // TODO 后期需要进行md5加密，然后再进行比对
-        if (!password.equals(employee.getPassword())) {
+        String md5password = tomd5.toMD5(password);
+        if (!md5password.equals(employee.getPassword())) {
             //密码错误
             throw new PasswordErrorException(MessageConstant.PASSWORD_ERROR);
         }
@@ -52,6 +64,17 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         //3、返回实体对象
         return employee;
+    }
+    /**
+     * 添加员工
+     *
+     * @param
+     * @return
+     */
+    @Override
+    public void save(EmployeeDTO employeeDTO) {
+        String token = jwtTokenAdminInterceptor.token;
+        employeeMapper.save(employeeDTO);
     }
 
 }

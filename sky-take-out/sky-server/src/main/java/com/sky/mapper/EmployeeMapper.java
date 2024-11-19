@@ -1,6 +1,8 @@
 package com.sky.mapper;
 
+import com.sky.dto.EmployeeDTO;
 import com.sky.entity.Employee;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -14,5 +16,8 @@ public interface EmployeeMapper {
      */
     @Select("select * from employee where username = #{username}")
     Employee getByUsername(String username);
+
+    @Insert("insert into employee (username,name,phone,sex,id_number) values (#{username},#{name},#{phone},#{sex},#{idNumber})")
+    void save(EmployeeDTO employeeDTO);
 
 }
